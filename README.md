@@ -26,18 +26,6 @@ Run example:
 python Example_Run/pyH2A_take_home_run.py
 ```
 
-Output:
-
-```bash
-SAMPLE 750
-differential_evolution step 1: f(x)= 3.5785
-differential_evolution step 2: f(x)= 3.5779
-Polishing solution with 'L-BFGS-B'
-[Notification] Optimization complete!
-Optimized kW(PV): 1.497
-Minimum LCOH: 3.5778 USD/kg
-```
-
 ## Main Feature
 
 ```bash
