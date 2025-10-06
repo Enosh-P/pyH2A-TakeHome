@@ -1,107 +1,76 @@
-<img align="right" src="https://github.com/jschneidewind/pyH2A/blob/master/src/pyH2A/Other/pyH2A.svg?raw=true"/>
+# pyH2A - Forked to Add Feature
 
-[![Documentation Status](https://readthedocs.org/projects/pyh2a/badge/?version=latest)](https://pyh2a.readthedocs.io/en/latest/?badge=latest)
-[![DOI](https://zenodo.org/badge/332826132.svg)](https://zenodo.org/badge/latestdoi/332826132)
+- **PyPI:** [https://pypi.org/project/pyH2A](https://pypi.org/project/pyH2A)  
+- **Docs:** [https://pyh2a.readthedocs.io](https://pyh2a.readthedocs.io)  
+- **Source:** [https://github.com/jschneidewind/pyH2A](https://github.com/jschneidewind/pyH2A)  
 
-# pyH2A
+---
 
-- **PyPI:** https://pypi.org/project/pyH2A
-- **Documentation:** https://pyh2a.readthedocs.io
-- **Source code:** https://github.com/jschneidewind/pyH2A
+## General Optimization
 
-pyH2A is an extensible Python framework for the analysis of hydrogen production cost. Its discounted cash flow module is based on the H2A Hydrogen Analysis model developed by the [U.S. Department of Energy](https://www.hydrogen.energy.gov/h2a_analysis.html)/[NREL](https://www.nrel.gov/hydrogen/h2a-production-models.html).
+This fork adds a **general-purpose optimization module** to minimize **Levelized Cost of Hydrogen (LCOH)** by adjusting parameters within bounds.
 
-The basic discounted cash flow analysis functionality enables calculation of levelized cost of hydrogen (LCOH<sub>2</sub>). It can be interfaced with different `Plugins` to allow modelling of various hydrogen production technologies. Furthermore, different `Analysis` modules can be applied, allowing for detailed analysis of the discounted cash flow results.
+- Uses **`scipy.optimize.differential_evolution`**  
+- Logs each iteration’s parameter values and hydrogen cost  
+- Saves results to a tab-delimited file
 
-It is a command line tool, with the input being provided using Markdown formatted plaintext files and the output being plots (and formatted PDF reports in the future).
+---
 
-Note: pyH2A is currently under development and may undergo major changes in its design.
+## Test
 
-# Installation
+Input file: `data/PV_E/Base/PV_E_Base.md`  
 
-pyH2A can be installed using `pip`:
-
-```bash
-pip install pyH2A
-```
-
-# Documentation
-
-Documentation for pyH2A is available at: https://pyh2a.readthedocs.io
-
-# Dependencies
-
-pyH2A uses Python >=3.7 with the following libraries: `NumPy`, `SciPy`, `Pandas`, `Matplotlib` and `Click`
-
-# Use
-
-pyH2A can be used from the command line:
+Run example:
 
 ```bash
-pyH2A run -i input_file -o output_directory
+python Example_Run/pyH2A_take_home_run.py
 ```
 
-For example, if the input file `Input.md` is in the `../Input` directory and the output directory is `../Output/Example_Output`:
+Output:
 
 ```bash
-pyH2A run -i ../Input/Input.md -o ../Output/Example_Output
+SAMPLE 750
+differential_evolution step 1: f(x)= 3.5785
+differential_evolution step 2: f(x)= 3.5779
+Polishing solution with 'L-BFGS-B'
+[Notification] Optimization complete!
+Optimized kW(PV): 1.497
+Minimum LCOH: 3.5778 USD/kg
 ```
 
-Alternatively, the `pyH2A` class from `pyH2A.run_pyH2A.py` can imported and used within a Python script.
+## Main Feature
 
-Input is provided using a plaintext Markdown file. Input files are structured by headers (designated by '#'), which are followed by Markdown style tables. Headers and tables are parsed by `pyH2A.py` to generate dictionaries which are used for computations. Certain input sections are mandatory (such as `Technical Operating Parameters and Specifications` or `Financial Input Values`). Additional input sections can be processed by invoking `Plugins`, which perform additional calculations that feed into the discounted cash flow analysis. Finally, the input file can invoke `Analysis` modules to analyze and visualize the output.
+```bash
+result = differential_evolution(
+    self.objective_function,
+    bounds=[(p['Values'][0], p['Values'][1]) for p in self.parameters.values()],
+    strategy='best1bin',
+    maxiter=self.n_iter,
+    popsize=self.pop_size,
+    workers=1,
+    seed=42,
+    disp=True,
+    polish=True
+)
+```
 
-Tools such as [StackEdit](https://stackedit.io/app#) can be used to edit markdown files while having a live view of the formatted version. This can help with readability of complex tables.
+This module performs global optimization to minimize the Levelized Cost of Hydrogen (LCOH). It varies specified input parameters within their bounds, evaluates the hydrogen cost using the Discounted_Cash_Flow model, and uses differential evolution to find the optimal set of parameters. Results are logged and saved for analysis.
 
-# Example output
+## Input Parameter:
 
-* Cost breakdown
+# General_Optimization_Analysis
 
-![cost breakdown plot](https://github.com/jschneidewind/pyH2A/blob/master/Example_Output/Cost_Breakdown_Plot.png?raw=True "Cost breakdown plot")
+Name | Value | Comment
+--- | --- | ---
+Max Iterations | 50 | Maximum iterations for optimization
+Population Size | 15 | Differential evolution population size
+Output File | data/PV_E/Base/general_optimizer_output.csv
 
-* Sensitivity analysis
+# Parameters - General_Optimization_Analysis
 
-![sensitivity plot](https://github.com/jschneidewind/pyH2A/blob/master/Example_Output/Sensitivity_Box_Plot.png?raw=true "Sensitivity plot")
+Parameter | Name | Type | Values | File Index | Comment
+--- | --- | --- | --- | --- | --- 
+Photovoltaic > Nominal Power (kW) > Value | kW(PV) | value | 0.5; 4.0 | 0 | Common value range.
 
-* Waterfall analysis
 
-![waterfall plot](https://github.com/jschneidewind/pyH2A/blob/master/Example_Output/Waterfall_Chart.png?raw=true "Waterfall plot")
 
-* Monte Carlo analysis, also allowing for comparison of different production pathways
-
-![colored scatter](https://github.com/jschneidewind/pyH2A/blob/master/Example_Output/Monte_Carlo_Colored_Scatter.png?raw=true "Colored Scatter")
-
-![comparative distance cost relationship and histograms](https://github.com/jschneidewind/pyH2A/blob/master/Example_Output/Monte_Carlo_Combined_Plot.png?raw=true "Comparative distance cost relationship and histograms")
-
-# Publication data 
-
-Data for the accompanying publication can be found in the `data` directory.
-
-# To do
-
-* Importing plugins and analysis modules from arbitrary location
-
-* Enabling use of Default.md file in arbitrary location
-
-* Block diagram illustrating flow of program
-
-* Creation of graph showing how inputs are processed by series of plugins
-
-* Lifecycle analysis & net energy analysis?
-
-# License
-
-Copyright (c) Jacob Schneidewind
-
-All software is licensed under a MIT license (see `LICENSE` file).
-
-Shield: [![CC BY 4.0][cc-by-shield]][cc-by]
-
-All other files and their contents are licensed under a
-[Creative Commons Attribution 4.0 International License][cc-by]. (see `LICENSE-CC-BY`)
-
-[![CC BY 4.0][cc-by-image]][cc-by]
-
-[cc-by]: http://creativecommons.org/licenses/by/4.0/
-[cc-by-image]: https://i.creativecommons.org/l/by/4.0/88x31.png
-[cc-by-shield]: https://img.shields.io/badge/License-CC%20BY%204.0-lightgrey.svg
