@@ -18,7 +18,7 @@ This fork adds a **general-purpose optimization module** to minimize **Levelized
 
 ## Test
 
-Input file: `data/PV_E/Base/PV_E_Base.md`  
+Input file: `data/PV_E/Base/PV_E_Base_take_home.md`  
 
 Run example:
 
